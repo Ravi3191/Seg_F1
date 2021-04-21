@@ -2,6 +2,12 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
+def convrelu(in_channels, out_channels, kernel, padding):
+    return nn.Sequential(
+        nn.Conv2d(in_channels, out_channels, kernel, padding=padding),
+        nn.ReLU(inplace=True),
+    )
+
 class Net(nn.Module):
     def __init__(self, p = 0.35):
         super(Net,self).__init__()

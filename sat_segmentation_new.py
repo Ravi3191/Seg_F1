@@ -3,8 +3,6 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import ToTensor
 import torch.nn.functional as F
-from skimage import io, transform
-from sklearn import model_selection
 from torchvision.transforms import transforms
 import random
 from PIL import Image
@@ -13,16 +11,13 @@ import numpy as np
 import torch.optim as optim
 import torchvision
 import cv2
-from google.colab.patches import cv2_imshow
 import torchvision.transforms.functional as TF
-from IPython.display import display
-import matplotlib.pyplot as plt
 from torchvision import models
 from torch.autograd import Variable
 import copy
-from loader.py import MyDataset
-from model.py import Net
-from iou_eval.py import *
+from loader import MyDataset
+from model import Net, convrelu
+from iou_eval import *
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -35,32 +30,27 @@ OPT_BETAS 		= (0.9, 0.999)
 OPT_EPS_LOW 		= 1e-08
 OPT_WEIGHT_DECAY 	= 1e-4
 
-image_path = ''
-label_path = ''
-savedir = ''
+image_path = '/home/tom/SUNRGBD_13class/SUNRGBD-train_images'
+label_path = '/home/tom/SUNRGBD_13class/train13labels'
+savedir = '/home/tom'
 
-image_path = os.listdir(image_path)
-image_path.sort()
+image_list = os.listdir(image_path)
+image_list.sort()
 
-label_list = os.listdir(label_list)
+label_list = os.listdir(label_path)
 label_list.sort()
 
 mean=[0.485, 0.456, 0.406]
 std=[0.229, 0.224, 0.225]
 
-class_weights = torch.tensor()
+# class_weights = torch.tensor()
 ARGS_NUM_EPOCHS = 200
+tran_batch_size = val_batch_size = 1
 
 Data = MyDataset(mean,std,image_path,label_path,label_list,image_list)
-train_set, val_set = torch.utils.data.random_split(dataset, [len(image_path) - 500, 500])
-train_loader = DataLoader(train_set, batch_size=16,shuffle=True, num_workers=4)
-val_loader = DataLoader(val_set, batch_size=16,shuffle=True, num_workers=4)
-
-def convrelu(in_channels, out_channels, kernel, padding):
-    return nn.Sequential(
-        nn.Conv2d(in_channels, out_channels, kernel, padding=padding),
-        nn.ReLU(inplace=True),
-    )
+train_set, val_set = torch.utils.data.random_split(Data, [len(image_list) - 500, 500])
+train_loader = DataLoader(train_set, batch_size=tran_batch_size,shuffle=True, num_workers=4)
+val_loader = DataLoader(val_set, batch_size=val_batch_size,shuffle=True, num_workers=4)
 
 class CrossEntropyLoss2d(torch.nn.Module):
 	def __init__(self, weight=None):
@@ -70,11 +60,11 @@ class CrossEntropyLoss2d(torch.nn.Module):
 	def forward(self, outputs, targets,mask=None):
 		return self.loss(torch.nn.functional.log_softmax(outputs, dim=1),targets)
 
-weight = class_weights.cuda()
+# weight = class_weights.cuda()
 # criterion = CrossEntropyLoss2d(weight=weight)
 criterion = CrossEntropyLoss2d()
 iou_best = 0
-model = Net(0.2).cuda()
+model = Net(0.2)
 
 optimizer = optim.Adam(
   model.parameters(),
@@ -97,8 +87,8 @@ for epoch in range(ARGS_NUM_EPOCHS+1):
 
     iters += 1
 
-    image = image.cuda()
-    label = label.cuda()
+    # image = image.cuda()
+    # label = label.cuda()
 
     output = model(image)
 
@@ -128,8 +118,8 @@ for epoch in range(ARGS_NUM_EPOCHS+1):
   
   for step, (image,label) in enumerate(test_loader):
 
-    image = image.cuda()
-    label = label.cuda()
+    # image = image.cuda()
+    # label = label.cuda()
 
     output = model(image)
 

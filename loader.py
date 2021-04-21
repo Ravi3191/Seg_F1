@@ -3,8 +3,9 @@ import torchvision.transforms.functional as TF
 from torch.utils.data import DataLoader, Dataset
 import os
 from scipy import io
-import paths.py as *
 from torchvision.transforms import transforms
+import torch
+import cv2
 
 
 class MyDataset(Dataset):
@@ -26,9 +27,10 @@ class MyDataset(Dataset):
     
     def __getitem__(self, index):
         
-        x = torch.from_numpy(cv2.imread(self.image_path + self.image_list[index])).permute(1,2,0) / 255
-        y = torch.from_numpy(cv2.imread(self.label_path + self.label_list[index],cv2.cv2.IMREAD_GRAYSCALE))
+        x = torch.from_numpy(cv2.imread(self.image_path + '/' + self.image_list[index])).permute(2,0,1) / 255
+        y = torch.from_numpy(cv2.imread(self.label_path + '/' + self.label_list[index],cv2.IMREAD_GRAYSCALE))
 
+        print(x.shape,y.shape)
         x = TF.normalize(x,self.mean,self.std)
 
         # x, y = self.transform(x,y)
