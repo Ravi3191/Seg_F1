@@ -87,8 +87,8 @@ for epoch in range(ARGS_NUM_EPOCHS+1):
 
     iters += 1
 
-    # image = image.cuda()
-    # label = label.cuda()
+    image = image.to(device)
+    label = label.to(device)
 
     output = model(image)
 
@@ -118,8 +118,8 @@ for epoch in range(ARGS_NUM_EPOCHS+1):
   
   for step, (image,label) in enumerate(test_loader):
 
-    # image = image.cuda()
-    # label = label.cuda()
+    image = image.to(device)
+    label = label.to(device)
 
     output = model(image)
 
