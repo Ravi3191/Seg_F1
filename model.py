@@ -9,7 +9,7 @@ def convrelu(in_channels, out_channels, kernel, padding):
     )
 
 class Net(nn.Module):
-    def __init__(self, p = 0.35):
+    def __init__(self,NUM_CLASSES, p = 0.35):
         super(Net,self).__init__()
 
         self.base_model = models.resnet34(pretrained=True)
@@ -41,7 +41,7 @@ class Net(nn.Module):
         self.conv_original_size1 = convrelu(32, 32, 3, 1)
         self.conv_original_size2 = convrelu(32, 16, 3, 1)
 
-        self.conv_last = nn.Conv2d(16, 4, 1)
+        self.conv_last = nn.Conv2d(16, NUM_CLASSES, 1)
         self.dropout = nn.Dropout(p) 
 
     def forward(self, input):

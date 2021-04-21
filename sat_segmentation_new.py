@@ -23,7 +23,7 @@ from iou_eval import *
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-NUM_CLASSES = 13
+NUM_CLASSES = 14
 OPT_LEARNING_RATE_INIT 	= 1e-3
 
 OPT_BETAS 		= (0.9, 0.999)
@@ -44,8 +44,8 @@ mean=[0.485, 0.456, 0.406]
 std=[0.229, 0.224, 0.225]
 
 # class_weights = torch.tensor()
-ARGS_NUM_EPOCHS = 200
-tran_batch_size = val_batch_size = 1
+ARGS_NUM_EPOCHS = 50
+tran_batch_size = val_batch_size = 32
 
 Data = MyDataset(mean,std,image_path,label_path,label_list,image_list)
 train_set, val_set = torch.utils.data.random_split(Data, [len(image_list) - 500, 500])
@@ -64,7 +64,7 @@ class CrossEntropyLoss2d(torch.nn.Module):
 # criterion = CrossEntropyLoss2d(weight=weight)
 criterion = CrossEntropyLoss2d()
 iou_best = 0
-model = Net(0.2)
+model = Net(NUM_CLASSES,0.2)
 
 optimizer = optim.Adam(
   model.parameters(),
@@ -81,7 +81,7 @@ for epoch in range(ARGS_NUM_EPOCHS+1):
   epoch_loss = []
   iters = 0
   model.train()
-  iouEvalTrain = iouEval(NUM_CLASSES)
+  iouEvalTrain = iouEval(NUM_CLASSES,device)
   
   for step, (image,label) in enumerate(train_loader):
 
@@ -114,7 +114,7 @@ for epoch in range(ARGS_NUM_EPOCHS+1):
 
   epoch_test_loss = []
   model.eval()
-  iouEvalTest = iouEval(NUM_CLASSES)
+  iouEvalTest = iouEval(NUM_CLASSES,device)
   
   for step, (image,label) in enumerate(test_loader):
 

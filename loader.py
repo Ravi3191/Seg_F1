@@ -6,6 +6,7 @@ from scipy import io
 from torchvision.transforms import transforms
 import torch
 import cv2
+import numpy as np
 
 
 class MyDataset(Dataset):
@@ -24,15 +25,15 @@ class MyDataset(Dataset):
         self.train_transforms_image = transforms.Compose([transforms.ToPILImage(),
         								   transforms.Resize((512, 512)),
                                            transforms.ToTensor(),
-                                           transforms.normalize(self.mean,self.std)])
+                                           transforms.Normalize(self.mean,self.std)])
 
         self.train_transforms_label = transforms.Compose([transforms.ToPILImage('F'),
-        								   transforms.Resize((512, 512),0)])
+        								   transforms.Resize((512, 512),TF.InterpolationMode.NEAREST)])
 
 
         self.test_transforms = transforms.Compose([transforms.Resize((512, 512)),
                                           transforms.ToTensor(),
-                                          transforms.normalize(self.mean,self.std)])
+                                          transforms.Normalize(self.mean,self.std)])
 
     
     def get_target_from_path(self, path):
@@ -44,13 +45,10 @@ class MyDataset(Dataset):
         x = torch.from_numpy(cv2.imread(self.image_path + '/' + self.image_list[index])).permute(2,0,1)
         y = torch.from_numpy(cv2.imread(self.label_path + '/' + self.label_list[index],cv2.IMREAD_GRAYSCALE)).float()
 
-        print(x.shape,y.shape)
-
         x = self.train_transforms_image(x)
         y = self.train_transforms_label(y)
 
         y = torch.from_numpy(np.asarray(y))
-        print(torch.unique(y))	
 
         # x, y = self.transform(x,y)
 
