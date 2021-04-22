@@ -13,7 +13,6 @@ import torchvision
 import cv2
 import torchvision.transforms.functional as TF
 from torchvision import models
-from torch.autograd import Variable
 import copy
 from loader import MyDataset
 from model import Net, convrelu
@@ -30,9 +29,14 @@ OPT_BETAS 		= (0.9, 0.999)
 OPT_EPS_LOW 		= 1e-08
 OPT_WEIGHT_DECAY 	= 1e-4
 
-image_path = '/home/tom/SUNRGBD_13class/SUNRGBD-train_images'
-label_path = '/home/tom/SUNRGBD_13class/train13labels'
-savedir = '/home/tom'
+# image_path = '/home/tom/SUNRGBD_13class/SUNRGBD-train_images'
+# label_path = '/home/tom/SUNRGBD_13class/train13labels'
+# savedir = '/home/tom'
+
+image_path = '/home/ravi/SUNRGBD/13Labels/SUNRGBD-train_images' 
+label_path = '/home/ravi/SUNRGBD/13Labels/train13labels' 
+savedir = '/home/ravi/SUNRGBD/13Labels'
+
 
 image_list = os.listdir(image_path)
 image_list.sort()
@@ -64,7 +68,7 @@ class CrossEntropyLoss2d(torch.nn.Module):
 # criterion = CrossEntropyLoss2d(weight=weight)
 criterion = CrossEntropyLoss2d()
 iou_best = 0
-model = Net(NUM_CLASSES,0.2)
+model = Net(NUM_CLASSES,0.2).to(device)
 
 optimizer = optim.Adam(
   model.parameters(),

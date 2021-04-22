@@ -2,7 +2,6 @@ from PIL import Image
 import torchvision.transforms.functional as TF
 from torch.utils.data import DataLoader, Dataset
 import os
-from scipy import io
 from torchvision.transforms import transforms
 import torch
 import cv2
@@ -10,7 +9,7 @@ import numpy as np
 
 
 class MyDataset(Dataset):
-    def __init__(self, mean,std,image_path,label_path,label_list,image_list,H = 256,W = 256):
+    def __init__(self, mean,std,image_path,label_path,label_list,image_list,H = 512,W = 512):
 
         self.label_list = label_list
         self.image_list = image_list
@@ -23,15 +22,15 @@ class MyDataset(Dataset):
 
 
         self.train_transforms_image = transforms.Compose([transforms.ToPILImage(),
-        								   transforms.Resize((512, 512)),
+        								   transforms.Resize((self.w, self.h)),
                                            transforms.ToTensor(),
                                            transforms.Normalize(self.mean,self.std)])
 
         self.train_transforms_label = transforms.Compose([transforms.ToPILImage('F'),
-        								   transforms.Resize((512, 512),TF.InterpolationMode.NEAREST)])
+        								   transforms.Resize((self.w, self.h),0)])
 
 
-        self.test_transforms = transforms.Compose([transforms.Resize((512, 512)),
+        self.test_transforms = transforms.Compose([transforms.Resize((self.w, self.h)),
                                           transforms.ToTensor(),
                                           transforms.Normalize(self.mean,self.std)])
 
